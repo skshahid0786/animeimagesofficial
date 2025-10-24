@@ -4,15 +4,16 @@ import fetch from 'node-fetch';
 async function fetchJson(url) {
   try {
     const res = await fetch(url);
-    return res.ok ? await res.json() : null;
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
   } catch (e) {
+    console.error("Fetch failed:", e);
     return null;
   }
 }
 
-// All commands from your script.js
+// All commands
 const commands = [
-  // Greetings / Smalltalk
   { name: 'Simple hello', keywords:['hi','hello'], action:()=> 'Hi there! 👋' },
   { name: 'Alternate greetings', keywords:['hiya','yo','sup'], action:()=> 'Hey! 👋' },
   { name: 'Good morning', keywords:['good morning','morning'], action:()=> 'Good morning! Have a great day 😊' },
@@ -122,9 +123,14 @@ export default async function handler(req, res) {
   const query = (req.query.q || '').toLowerCase().trim();
 
   for (const cmd of commands) {
-    if (cmd.keywords.some(k=>query.startsWith(k))) {
-      const result = await cmd.action(query);
-      return res.json({ success:true, result });
+    if (cmd.keywords.some(k => query.startsWith(k))) {
+      try {
+        const result = await cmd.action(query);
+        return res.json({ success:true, result });
+      } catch (e) {
+        console.error("Command failed:", e);
+        return res.status(500).json({ success:false, error:'Command execution failed' });
+      }
     }
   }
 
