@@ -1,0 +1,206 @@
+<!-- Add this button & modal in your chatbot page (index.html) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AnimeFlareBox</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* --- existing colors --- */
+:root {
+  --bg:#f7f9fc; --panel:#fff; --accent:#ff6f61; --muted:#e0f7fa;
+  --text:#1f2937; --text-secondary:#6b7280;
+  --user-start:#d8b4fe; --user-end:#a78bfa;
+  --accent-glow:rgba(255,111,97,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);font-family:'Poppins',sans-serif;color:var(--text);
+display:flex;justify-content:flex-start;align-items:center;padding-left:20px;}
+.app{width:90%;max-width:500px;height:88vh;background:var(--panel);
+display:flex;flex-direction:column;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.15);overflow:hidden;}
+#girlContainer{display:flex;align-items:center;justify-content:space-between;
+background:linear-gradient(90deg,rgba(255,111,97,0.1),rgba(255,111,97,0.05));
+padding:14px 16px;border-bottom:1px solid #f0f0f0;}
+#girlImage{width:70px;height:70px;border-radius:12px;object-fit:cover;box-shadow:0 0 15px var(--accent-glow);}
+#girlMeta{flex:1;margin-left:12px;}
+#girlName{font-weight:600;font-size:1.1rem;}
+#girlMood{font-size:0.85rem;color:var(--text-secondary);}
+#imageBtn{
+  background:var(--accent);color:#fff;border:none;border-radius:8px;
+  font-size:18px;padding:8px 10px;cursor:pointer;transition:all .3s ease;
+}
+#imageBtn:hover{background:#e45b53;transform:scale(1.05);}
+
+/* chat + input */
+#chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--bg);}
+.bubble{max-width:78%;padding:10px 14px;border-radius:14px;line-height:1.45;box-shadow:0 3px 10px rgba(0,0,0,0.1);}
+.bubble.user{align-self:flex-end;background:linear-gradient(90deg,var(--user-start),var(--user-end));color:#fff;}
+.bubble.bot{align-self:flex-start;background:var(--muted);}
+#inputContainer{display:flex;gap:8px;padding:12px;border-top:1px solid #f0f0f0;background:var(--panel);}
+#textInput{flex:1;padding:10px;border:1px solid #d1d5db;border-radius:10px;background:#f9fafb;}
+button{cursor:pointer;border:none;border-radius:10px;padding:8px 12px;font-weight:500;}
+#sendBtn{background:var(--accent);color:#fff;} #clearBtn{background:#e5e7eb;color:var(--text-secondary);}
+#sendBtn:hover{background:#e45b53;} #clearBtn:hover{background:#d1d5db;}
+
+/* Modal Styles */
+#imageModal{
+  display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);
+  justify-content:center;align-items:center;z-index:999;
+}
+.modal-content{
+  background:#fff;padding:20px;border-radius:12px;max-width:400px;width:90%;
+  text-align:center;box-shadow:0 6px 20px rgba(0,0,0,0.2);
+}
+.modal-content select, .modal-content button{
+  margin-top:10px;font-size:16px;border-radius:8px;
+}
+.modal-content select{padding:8px;width:100%;border:1px solid #ddd;}
+.modal-content img{margin-top:15px;width:100%;border-radius:10px;display:none;}
+.loading{display:none;margin-top:10px;color:#555;}
+.closeBtn{
+  background:#ff6f61;color:#fff;border:none;border-radius:8px;
+  padding:6px 12px;font-weight:600;cursor:pointer;margin-top:12px;
+}
+.closeBtn:hover{background:#e45b53;}
+
+#helpBtn{
+  background:#e5e7eb;
+  color:#444;
+  border:none;
+  border-radius:8px;
+  padding:8px 10px;
+  font-size:18px;
+  cursor:pointer;
+  transition:all .25s ease;
+}
+#helpBtn:hover{
+  background:#d1d5db;
+  transform:scale(1.05);
+}
+  
+  
+</style>
+</head>
+
+<body>
+  <div class="app">
+    <div id="girlContainer">
+  <img id="girlImage" src="images/happy.jpg" alt="NeoAssist Avatar">
+  <div id="girlMeta">
+    <div id="girlName">NeoAssist</div>
+    <div id="girlMood">Feeling cheerful 💖</div>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button id="helpBtn" title="Show Commands">ℹ️</button>
+    <button id="imageBtn" title="Anime Image">🖼</button>
+  </div>
+</div>
+
+
+    <div id="chat" role="log" aria-live="polite"></div>
+
+    <div id="inputContainer">
+      <input id="textInput" type="text" placeholder="Type something..." />
+</div>
+      <div id="inputContainer">
+      <button id="sendBtn">Send</button>
+      <button id="clearBtn">Clear</button>
+    </div>
+  </div>
+
+  <!-- Anime Image Modal -->
+  <div id="imageModal">
+    <div class="modal-content">
+      <h3>Choose a category 🌸</h3>
+      <select id="category">
+        <option value="">Random</option>
+        <option value="waifu">Waifu</option>
+        <option value="neko">Neko</option>
+        <option value="hug">Hug</option>
+        <option value="smile">Smile</option>
+        <option value="dance">Dance</option>
+        <option value="wink">Wink</option>
+        <option value="blush">Blush</option>
+      </select>
+      <button class="button" onclick="getAnimeImage()">Load Image</button>
+      <div class="loading">Loading...</div>
+      <img id="anime-image" alt="Anime Image">
+      <a id="download-link" class="button" href="#" download style="display:none;margin-top:10px;">Download</a>
+      <button class="closeBtn" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
+<script src="script.js"></script>
+<script>
+const modal = document.getElementById('imageModal');
+const btn = document.getElementById('imageBtn');
+function closeModal(){modal.style.display='none';}
+btn.addEventListener('click',()=>{modal.style.display='flex';});
+
+/* --- Anime Image Fetcher --- */
+function getAnimeImage() {
+  const selectedCategory = document.getElementById('category').value;
+  let apiUrl = 'https://api.waifu.pics/sfw/';
+  const categories = ['waifu','neko','hug','dance','wink','smile','blush'];
+  apiUrl += selectedCategory || categories[Math.floor(Math.random()*categories.length)];
+
+  const loading = document.querySelector('.loading');
+  const img = document.getElementById('anime-image');
+  const dl = document.getElementById('download-link');
+  loading.style.display='block'; img.style.display='none'; dl.style.display='none';
+
+  fetch(apiUrl)
+    .then(res=>res.json())
+    .then(data=>{
+      if(data.url){
+        const url = `${data.url}?t=${Date.now()}`;
+        const temp = new Image();
+        temp.onload=()=>{
+          img.src=url; img.style.display='block';
+          loading.style.display='none'; dl.href=url; dl.style.display='inline-block';
+        };
+        temp.onerror=()=>{loading.textContent='Failed to load image.'};
+        temp.src=url;
+      } else loading.textContent='No image found.';
+    })
+    .catch(()=>loading.textContent='Error loading image.');
+}
+
+/* Close modal on outside click */
+window.addEventListener('click',e=>{
+  if(e.target===modal) closeModal();
+});
+</script>
+  
+<script>
+document.getElementById('helpBtn').addEventListener('click', ()=>{
+  const chat = document.getElementById('chat');
+  const helpBubble = document.createElement('div');
+  helpBubble.classList.add('bubble','bot');
+  helpBubble.innerHTML = `
+    <strong>🧠 NeoAssist Commands:</strong><br><br>
+    🌦️ <b>Weather:</b> weather in [city]<br>
+    🕒 <b>Time:</b> say "time"<br>
+    💡 <b>Advice:</b> say "advice"<br>
+    😂 <b>Joke:</b> say "joke"<br>
+    💬 <b>Quote:</b> say "quote"<br>
+    🎲 <b>Fun:</b> roll a dice / flip a coin<br>
+    📚 <b>Search:</b> search [topic]<br>
+    🐱 <b>Images:</b> cat / dog<br>
+    🖼 <b>Anime:</b> click 🖼 button<br>
+    😄 <b>Mood change:</b> type how you feel (happy, sad, etc.)<br>
+    🧹 <b>Clear chat:</b> click Clear button
+  `;
+  chat.appendChild(helpBubble);
+  chat.scrollTop = chat.scrollHeight;
+});
+</script>
+
+
+
+</body>
+</html>
